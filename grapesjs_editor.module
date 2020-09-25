@@ -1,0 +1,155 @@
+<?php
+
+/**
+ * @file
+ * Contains grapesjs_editor.module.
+ */
+
+use Drupal\Core\Entity\EntityFormInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_help().
+ */
+function grapesjs_editor_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.grapesjs_editor':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The GrapesJS Editor module provides a page builder.') . '</p>';
+      return ['#markup' => $output];
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Adds a GrapesJs Editor configuration fields to node type forms.
+ */
+function grapesjs_editor_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = Drupal::service('config.factory')->get('grapesjs_editor.settings');
+  $bundles = $config->get('bundles');
+
+  if (in_array($form_id, ['node_type_add_form', 'node_type_edit_form'])) {
+    $form['grapesjs_editor'] = [
+      '#type' => 'details',
+      '#title' => t('GrapesJS Editor'),
+      '#group' => 'additional_settings',
+      '#weight' => 999,
+      'enable_grapesjs_editor' => [
+        '#type' => 'checkbox',
+        '#title' => t('Enable GrapesJS Editor'),
+        '#description' => t('Turn the node form into a GrapesJS page builder. The body field is necessary.'),
+        '#default_value' => $bundles[$form['type']['#default_value']],
+      ],
+    ];
+
+    if (isset($form['actions']['submit']['#submit'])) {
+      foreach (array_keys($form['actions']) as $action) {
+        if ($action !== 'preview'
+          && isset($form['actions'][$action]['#type'])
+          && $form['actions'][$action]['#type'] === 'submit') {
+          $form['actions'][$action]['#submit'][] = '_grapesjs_editor_node_type_form_submit';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Save grapesjs_editor.settings configuration.
+ *
+ * @param array $form
+ *   The form element.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ */
+function _grapesjs_editor_node_type_form_submit(array $form, FormStateInterface $form_state) {
+  $grapesjs_editor_enabled = $form_state->getValue('enable_grapesjs_editor');
+  $bundle = $form_state->getValue('type');
+
+  /* @var \Drupal\Core\Config\Config $config */
+  $config = Drupal::service('config.factory')
+    ->getEditable('grapesjs_editor.settings');
+  $bundles = $config->get('bundles');
+  $bundles[$bundle] = $grapesjs_editor_enabled;
+
+  $config->merge(['bundles' => $bundles])->save(TRUE);
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function grapesjs_editor_element_info_alter(array &$info) {
+  if (!empty($info['text_format'])) {
+    $info['text_format']['#process'][] = '_grapesjs_editor_text_format_processor';
+  }
+}
+
+/**
+ * Removes GrapesJS format if is disabled for this node type.
+ *
+ * @param array $element
+ *   The render element.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ * @param array $complete_form
+ *   The form element.
+ *
+ * @return array
+ *   The altered render element.
+ */
+function _grapesjs_editor_text_format_processor(array $element, FormStateInterface $form_state, array &$complete_form) {
+  if (!empty($element['format']) && isset($element['format']['format']['#options']['grapesjs_editor'])) {
+    // By default let's assume that GrapesJS Editor format is not allowed.
+    $grapesjs_editor_allowed = FALSE;
+    /** @var \Drupal\Core\Entity\ContentEntityForm $form */
+    $form = $form_state->getFormObject();
+    // Check whether the form that contains the element is an EntityForm.
+    if ($form instanceof EntityFormInterface) {
+      // Get the entity from the form object for further processing.
+      $entity = $form->getEntity();
+      // Check whether entity is of node type, because currently only them are
+      // supported.
+      if ($entity instanceof NodeInterface) {
+        // Get the node type to get the GrapesJS Editor setting.
+        $node_type = $entity->bundle();
+
+        // GrapesJS Editor is enabled for current content type and
+        // the current user is allowed to use the format.
+        /* @var \Drupal\grapesjs_editor\Services\EditorChecker $editor_checker */
+        $editor_checker = Drupal::service('grapesjs_editor.editor_checker');
+        $grapesjs_editor_allowed = $editor_checker->bundleIsAllowed($node_type);
+      }
+    }
+    // If GrapesJS Editor is not enabled for the current form or
+    // current user is not allowed to use the format, disable the choice of
+    // GrapesJS Editor format for this element.
+    if (!$grapesjs_editor_allowed) {
+      unset($element['format']['format']['#options']['grapesjs_editor']);
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Adds GrapesJs container to node form.
+ */
+function grapesjs_editor_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /* @var \Drupal\grapesjs_editor\Services\EditorChecker $editor_checker */
+  $editor_checker = Drupal::service('grapesjs_editor.editor_checker');
+
+  if ($editor_checker->isGrapesJsEditorNodeForm()) {
+    $form['gjs'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['gjs'],
+      ],
+    ];
+  }
+}

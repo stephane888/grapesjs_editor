@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.grapesjs_editor
+  enforced:
+    module:
+      - grapesjs_editor
+  module:
+    - grapesjs_editor
+format: grapesjs_editor
+editor: grapesjs_editor
+settings: { }
+image_upload:
+  status: true
+  scheme: public
+  directory: inline-images
+  max_size: ''
+  max_dimensions:
+    width: null
+    height: null

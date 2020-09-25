@@ -1,0 +1,17 @@
+status: true
+dependencies:
+  enforced:
+    module:
+      - grapesjs_editor
+  module:
+    - grapesjs_editor
+name: 'GrapesJS Editor'
+format: grapesjs_editor
+weight: 0
+filters:
+  editor_file_reference:
+    id: editor_file_reference
+    provider: editor
+    status: true
+    weight: 0
+    settings: { }

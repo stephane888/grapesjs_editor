@@ -1,0 +1,13 @@
+grapesjs_editor.upload_assets:
+  path: '/grapesjs-editor/assets/upload'
+  defaults:
+    _controller: 'Drupal\grapesjs_editor\Controller\AssetController::uploadAssets'
+  requirements:
+    _permission: 'use text format grapesjs_editor'
+
+grapesjs_editor.get_block:
+  path: '/grapesjs-editor/blocks/block'
+  defaults:
+    _controller: 'Drupal\grapesjs_editor\Controller\BlockController::block'
+  requirements:
+    _permission: 'use text format grapesjs_editor'

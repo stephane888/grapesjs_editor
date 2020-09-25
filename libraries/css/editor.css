@@ -1,0 +1,13 @@
+.gjs select {
+  font-size: 13px;
+  line-height: 1;
+  background: none;
+  text-shadow: none;
+}
+
+.gjs select:focus,
+.gjs select:hover {
+  color: inherit;
+  background: none;
+  box-shadow: none;
+}

@@ -1,0 +1,64 @@
+grapesjs:
+  remote: https://github.com/artf/grapesjs
+  version: 0.16.22
+  license:
+    name: BSD 3-clause
+    url: https://github.com/artf/grapesjs/blob/v0.16.22/LICENSE
+    gpl-compatible: true
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/grapesjs/0.16.22/grapes.min.js: { type: external, minified: true }
+  css:
+    base:
+      https://cdnjs.cloudflare.com/ajax/libs/grapesjs/0.16.22/css/grapes.min.css: { type: external, minified: true }
+
+editor:
+  version: VERSION
+  css:
+    base:
+      libraries/css/editor.css: { }
+  js:
+    libraries/js/editor.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.debounce
+    - core/drupal.displace
+    - editor/drupal.editor
+    - grapesjs_editor/grapesjs
+
+drupal-storage:
+  version: VERSION
+  js:
+    libraries/js/plugins/drupal-storage/plugin.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - grapesjs_editor/grapesjs
+
+drupal-asset:
+  version: VERSION
+  js:
+    libraries/js/plugins/drupal-asset/plugin.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - grapesjs_editor/grapesjs
+
+drupal-basic-blocks:
+  version: VERSION
+  js:
+    libraries/js/plugins/drupal-basic-blocks/plugin.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - grapesjs_editor/grapesjs
+
+drupal-blocks:
+  version: VERSION
+  js:
+    libraries/js/plugins/drupal-blocks/plugin.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - grapesjs_editor/grapesjs
