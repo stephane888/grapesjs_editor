@@ -15,3 +15,9 @@ filters:
     status: true
     weight: 0
     settings: { }
+  grapesjs_filter_block:
+    id: grapesjs_filter_block
+    provider: grapesjs_editor
+    status: true
+    weight: 0
+    settings: { }

@@ -3,10 +3,12 @@
 namespace Drupal\grapesjs_editor\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,11 +32,18 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
   protected $renderer;
 
   /**
-   * The entity type manager service.
+   * The block manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Block\BlockManagerInterface
    */
-  protected $entityTypeManager;
+  protected $blockManager;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
 
   /**
    * The result metadata.
@@ -54,13 +63,16 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
    *   The plugin implementation definition.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager service.
+   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   *   The block manager.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer, BlockManagerInterface $block_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->renderer = $renderer;
-    $this->entityTypeManager = $entity_type_manager;
+    $this->blockManager = $block_manager;
+    $this->currentUser = $current_user;
     $this->metadata = new BubbleableMetadata();
   }
 
@@ -73,7 +85,8 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
       $plugin_id,
       $plugin_definition,
       $container->get('renderer'),
-      $container->get('entity_type.manager')
+      $container->get('plugin.manager.block'),
+      $container->get('current_user')
     );
   }
 
@@ -110,17 +123,14 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
     $tag_elements = $html->getElementsByTagName('drupal-block');
     foreach ($tag_elements as $tag_element) {
       /* @var \DOMElement $tag_element */
-      $block_type = $tag_element->getAttribute('block-type');
-      $block_id = $tag_element->getAttribute('block-id');
-      $display_id = $tag_element->getAttribute('block-display-id');
+      $plugin_id = $tag_element->getAttribute('block-plugin-id');
 
-      $storage = $this->entityTypeManager->getStorage('view');
-      /* @var \Drupal\views\Entity\View $view */
-      if (($view = $storage->load($block_id)) && $view->getDisplay($display_id)) {
-        $this->metadata->addCacheableDependency(BubbleableMetadata::createFromObject($view));
-
-        $block = views_embed_view($view->id(), $display_id);
-        return $this->renderer->render($block);
+      /* @var \Drupal\Core\Block\BlockBase $plugin_block */
+      $plugin_block = $this->blockManager->createInstance($plugin_id);
+      $access = $plugin_block->access($this->currentUser);
+      if (($access instanceof AccessResultInterface && !$access->isForbidden()) || $access === TRUE) {
+        $render = $plugin_block->build();
+        return $this->renderer->render($render);
       }
     }
 

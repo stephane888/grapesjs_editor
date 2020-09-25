@@ -4,12 +4,12 @@
  */
 (function ($, Drupal, grapesjs) {
   grapesjs.plugins.add('drupal-blocks', function (editor, options) {
-    console.log(options);
     const blockManager = editor.BlockManager;
     const domComponents = editor.DomComponents;
     const category = {
       id: 'drupal-blocks',
       label: Drupal.t('Drupal Blocks'),
+      open: false,
     };
     const disableChildComponents = function (components) {
       components.forEach(function (c) {
@@ -91,7 +91,7 @@
 
     /* Blocks : Drupal Block */
     options.blocks.forEach(function (block) {
-      const blockId = `drupal-block-${block.view_id}-${block.display_id}`;
+      const blockId = `drupal-block-${block.plugin_id}`;
 
       blockManager.add(blockId, {
         label: block.label,
@@ -100,9 +100,7 @@
         content: {
           type: 'drupal-block',
           attributes: {
-            'block-type': block.type,
-            'block-id': block.view_id,
-            'block-display-id': block.display_id,
+            'block-plugin-id': block.plugin_id,
           }
         }
       });

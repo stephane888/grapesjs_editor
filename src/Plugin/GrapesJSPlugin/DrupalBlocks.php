@@ -2,13 +2,14 @@
 
 namespace Drupal\grapesjs_editor\Plugin\GrapesJSPlugin;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Block\BlockManagerInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 use Drupal\grapesjs_editor\GrapesJSPluginBase;
-use Drupal\grapesjs_editor\GrapesJSPluginInterface;
-use Drupal\views\Entity\View;
+use Drupal\grapesjs_editor\GrapesJSPluginConfigurableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,14 +21,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   module = "grapesjs_editor"
  * )
  */
-class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginInterface, GrapesJSPluginInterface {
+class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginInterface, GrapesJSPluginConfigurableInterface {
 
   /**
-   * The entity type manager.
+   * The block manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Block\BlockManagerInterface
    */
-  protected $entityTypeManager;
+  protected $blockManager;
+
+  /**
+   * The context repository.
+   *
+   * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
+   */
+  protected $contextRepository;
 
   /**
    * DrupalBlocks constructor.
@@ -38,12 +46,15 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
+   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   *   The block manager.
+   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
+   *   The context repository.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlockManagerInterface $block_manager, ContextRepositoryInterface $context_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityTypeManager = $entity_type_manager;
+    $this->blockManager = $block_manager;
+    $this->contextRepository = $context_repository;
   }
 
   /**
@@ -54,8 +65,30 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('plugin.manager.block'),
+      $container->get('context.repository')
     );
+  }
+
+  /**
+   * Returns the block list.
+   *
+   * @return array
+   *   The block list.
+   */
+  protected function getPluginBlocks() {
+    // For page_title_block : https://www.drupal.org/node/2938129.
+    $restricted_blocks = ['broken', 'page_title_block', 'system_main_block'];
+
+    // Get blocks definition.
+    $definitions = $this->blockManager->getFilteredDefinitions('block_ui', $this->contextRepository->getAvailableContexts());
+    foreach ($restricted_blocks as $plugin_id) {
+      if (isset($definitions[$plugin_id])) {
+        unset($definitions[$plugin_id]);
+      }
+    }
+
+    return $definitions;
   }
 
   /**
@@ -72,26 +105,18 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
    */
   public function getConfig(Editor $editor) {
     $blocks = [];
-    $view_storage = $this->entityTypeManager->getStorage('view');
-    $views = $view_storage->loadByProperties(['status' => TRUE]);
-    $blocks = array_reduce($views, function ($carry, View $view) {
-      $displays = $view->get('display');
-      foreach ($displays as $display) {
-        if ($display['display_plugin'] === 'block' && (!isset($display['display_options']['enabled']) || $display['display_options']['enabled'] !== FALSE)) {
-          $carry[] = [
-            'type' => 'view',
-            'label' => $this->t('View %view - %block', [
-              '%view' => $view->label(),
-              '%block' => $display['display_title'],
-            ]),
-            'view_id' => $view->id(),
-            'display_id' => $display['id'],
-          ];
-        }
-      }
+    $settings = $editor->getSettings();
+    $allowed_blocks = $settings['plugins']['drupal_blocks'] ?? [];
+    $plugin_blocks = $this->getPluginBlocks();
 
-      return $carry;
-    }, $blocks);
+    foreach ($allowed_blocks as $plugin_id => $allowed) {
+      if ($allowed) {
+        $blocks[] = [
+          'label' => $plugin_blocks[$plugin_id]['admin_label'],
+          'plugin_id' => $plugin_id,
+        ];
+      }
+    }
 
     return [
       'grapesSettings' => [
@@ -107,6 +132,78 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
         ],
       ],
     ];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
+    $settings = $editor->getSettings();
+    $config = $settings['plugins']['drupal_blocks'] ?? [];
+    $plugin_blocks = $this->getPluginBlocks();
+    $groups = $this->blockManager->getGroupedDefinitions($plugin_blocks);
+
+    foreach ($groups as $key => $blocks) {
+      $group_reference = preg_replace('@[^a-z0-9-]+@', '_', strtolower($key));
+      $form['allowed_blocks'][$group_reference] = [
+        '#type' => 'fieldset',
+        '#title' => $key,
+      ];
+
+      foreach ($blocks as $plugin_id => $definition) {
+        $form['allowed_blocks'][$group_reference][$plugin_id] = [
+          '#title' => $definition['admin_label'],
+          '#type' => 'checkbox',
+          '#default_value' => !empty($config[$plugin_id]),
+        ];
+      }
+    }
+
+    $form['allowed_blocks']['#element_validate'][] = [
+      $this,
+      'validateAllowedBlocksSettings',
+    ];
+
+    return $form;
+  }
+
+  /**
+   * Validation handler for the "allowed_blocks" element in settingsForm().
+   *
+   * @param array $element
+   *   The render element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function validateAllowedBlocksSettings(array $element, FormStateInterface $form_state) {
+    $settings = [];
+    $plugin_blocks = $this->getPluginBlocks();
+    $groups = $this->blockManager->getGroupedDefinitions($plugin_blocks);
+
+    foreach ($groups as $key => $blocks) {
+      $group_reference = preg_replace('@[^a-z0-9-]+@', '_', strtolower($key));
+      $settings += $form_state->getValue([
+        'editor',
+        'settings',
+        'plugins',
+        'drupal_blocks',
+        'allowed_blocks',
+        $group_reference,
+      ]);
+    }
+
+    $form_state->unsetValue([
+      'editor',
+      'settings',
+      'plugins',
+      'drupal_blocks',
+    ]);
+    $form_state->setValue([
+      'editor',
+      'settings',
+      'plugins',
+      'drupal_blocks',
+    ], $settings);
   }
 
 }

@@ -10,7 +10,11 @@ dependencies:
     - grapesjs_editor
 format: grapesjs_editor
 editor: grapesjs_editor
-settings: { }
+settings:
+  plugins:
+    drupal_blocks:
+      search_form_block: 1
+      system_breadcrumb_block: 1
 image_upload:
   status: true
   scheme: public
