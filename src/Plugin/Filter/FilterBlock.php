@@ -3,14 +3,13 @@
 namespace Drupal\grapesjs_editor\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Access\AccessResultInterface;
-use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\grapesjs_editor\Services\BlockManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,7 +33,7 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * The block manager.
    *
-   * @var \Drupal\Core\Block\BlockManagerInterface
+   * @var \Drupal\grapesjs_editor\Services\BlockManager
    */
   protected $blockManager;
 
@@ -63,12 +62,12 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
    *   The plugin implementation definition.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
-   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   * @param \Drupal\grapesjs_editor\Services\BlockManager $block_manager
    *   The block manager.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer, BlockManagerInterface $block_manager, AccountProxyInterface $current_user) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RendererInterface $renderer, BlockManager $block_manager, AccountProxyInterface $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->renderer = $renderer;
     $this->blockManager = $block_manager;
@@ -85,7 +84,7 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
       $plugin_id,
       $plugin_definition,
       $container->get('renderer'),
-      $container->get('plugin.manager.block'),
+      $container->get('grapesjs_editor.block_manager'),
       $container->get('current_user')
     );
   }
@@ -113,10 +112,8 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
    * @return \Drupal\Component\Render\MarkupInterface|string
    *   The block render.
    *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Exception
    *   Thrown if the plugin definition is invalid.
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   *   Thrown if the plugin can't be found.
    */
   protected function renderBlock(array $match) {
     $html = Html::load($match[0]);
@@ -124,14 +121,7 @@ class FilterBlock extends FilterBase implements ContainerFactoryPluginInterface 
     foreach ($tag_elements as $tag_element) {
       /* @var \DOMElement $tag_element */
       $plugin_id = $tag_element->getAttribute('block-plugin-id');
-
-      /* @var \Drupal\Core\Block\BlockBase $plugin_block */
-      $plugin_block = $this->blockManager->createInstance($plugin_id);
-      $access = $plugin_block->access($this->currentUser);
-      if (($access instanceof AccessResultInterface && !$access->isForbidden()) || $access === TRUE) {
-        $render = $plugin_block->build();
-        return $this->renderer->render($render);
-      }
+      return $this->blockManager->renderBlockById($plugin_id);
     }
 
     return '';

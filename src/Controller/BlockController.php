@@ -2,10 +2,9 @@
 
 namespace Drupal\grapesjs_editor\Controller;
 
-use Drupal\Core\Access\AccessResultInterface;
-use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\grapesjs_editor\Services\BlockManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +25,7 @@ class BlockController extends ControllerBase {
   /**
    * The block manager.
    *
-   * @var \Drupal\Core\Block\BlockManagerInterface
+   * @var \Drupal\grapesjs_editor\Services\BlockManager
    */
   protected $blockManager;
 
@@ -35,10 +34,10 @@ class BlockController extends ControllerBase {
    *
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
-   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   * @param \Drupal\grapesjs_editor\Services\BlockManager $block_manager
    *   The block manager.
    */
-  public function __construct(RendererInterface $renderer, BlockManagerInterface $block_manager) {
+  public function __construct(RendererInterface $renderer, BlockManager $block_manager) {
     $this->renderer = $renderer;
     $this->blockManager = $block_manager;
   }
@@ -49,7 +48,7 @@ class BlockController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('renderer'),
-      $container->get('plugin.manager.block')
+      $container->get('grapesjs_editor.block_manager')
     );
   }
 
@@ -66,14 +65,9 @@ class BlockController extends ControllerBase {
    *   Thrown if the plugin is invalid.
    */
   public function block(Request $request) {
-    if ($request->query->get('block-plugin-id')) {
-      /* @var \Drupal\Core\Block\BlockBase $plugin_block */
-      $plugin_block = $this->blockManager->createInstance($request->query->get('block-plugin-id'));
-      $access = $plugin_block->access($this->currentUser());
-      if (($access instanceof AccessResultInterface && !$access->isForbidden()) || $access === TRUE) {
-        $render = $plugin_block->build();
-        $block_render = $this->renderer->render($render);
-        return new JsonResponse($block_render);
+    if ($plugin_id = $request->query->get('block-plugin-id')) {
+      if ($block = $this->blockManager->getBlock($plugin_id)) {
+        return new JsonResponse($this->blockManager->renderBlock($block));
       }
 
       return new JsonResponse($this->t('Block access is forbidden'), Response::HTTP_FORBIDDEN);

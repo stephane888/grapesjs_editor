@@ -2,14 +2,13 @@
 
 namespace Drupal\grapesjs_editor\Plugin\GrapesJSPlugin;
 
-use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 use Drupal\grapesjs_editor\GrapesJSPluginBase;
 use Drupal\grapesjs_editor\GrapesJSPluginConfigurableInterface;
+use Drupal\grapesjs_editor\Services\BlockManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,16 +25,9 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
   /**
    * The block manager.
    *
-   * @var \Drupal\Core\Block\BlockManagerInterface
+   * @var \Drupal\grapesjs_editor\Services\BlockManager
    */
   protected $blockManager;
-
-  /**
-   * The context repository.
-   *
-   * @var \Drupal\Core\Plugin\Context\ContextRepositoryInterface
-   */
-  protected $contextRepository;
 
   /**
    * DrupalBlocks constructor.
@@ -46,15 +38,12 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   * @param \Drupal\grapesjs_editor\Services\BlockManager $block_manager
    *   The block manager.
-   * @param \Drupal\Core\Plugin\Context\ContextRepositoryInterface $context_repository
-   *   The context repository.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlockManagerInterface $block_manager, ContextRepositoryInterface $context_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlockManager $block_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blockManager = $block_manager;
-    $this->contextRepository = $context_repository;
   }
 
   /**
@@ -65,8 +54,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('plugin.manager.block'),
-      $container->get('context.repository')
+      $container->get('grapesjs_editor.block_manager'),
     );
   }
 
@@ -107,7 +95,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
     $blocks = [];
     $settings = $editor->getSettings();
     $allowed_blocks = $settings['plugins']['drupal_blocks'] ?? [];
-    $plugin_blocks = $this->getPluginBlocks();
+    $plugin_blocks = $this->blockManager->getBlocks();
 
     foreach ($allowed_blocks as $plugin_id => $allowed) {
       if ($allowed) {
@@ -146,18 +134,16 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
   public function settingsForm(array $form, FormStateInterface $form_state, Editor $editor) {
     $settings = $editor->getSettings();
     $config = $settings['plugins']['drupal_blocks'] ?? [];
-    $plugin_blocks = $this->getPluginBlocks();
-    $groups = $this->blockManager->getGroupedDefinitions($plugin_blocks);
+    $groups = $this->blockManager->getGroupedBlocks();
 
     foreach ($groups as $key => $blocks) {
-      $group_reference = preg_replace('@[^a-z0-9-]+@', '_', strtolower($key));
-      $form['allowed_blocks'][$group_reference] = [
+      $form['allowed_blocks'][$key] = [
         '#type' => 'fieldset',
         '#title' => $key,
       ];
 
       foreach ($blocks as $plugin_id => $definition) {
-        $form['allowed_blocks'][$group_reference][$plugin_id] = [
+        $form['allowed_blocks'][$key][$plugin_id] = [
           '#title' => $definition['admin_label'],
           '#type' => 'checkbox',
           '#default_value' => !empty($config[$plugin_id]),
@@ -183,18 +169,16 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
    */
   public function validateAllowedBlocksSettings(array $element, FormStateInterface $form_state) {
     $settings = [];
-    $plugin_blocks = $this->getPluginBlocks();
-    $groups = $this->blockManager->getGroupedDefinitions($plugin_blocks);
+    $groups = $this->blockManager->getGroupedBlocks();
 
     foreach ($groups as $key => $blocks) {
-      $group_reference = preg_replace('@[^a-z0-9-]+@', '_', strtolower($key));
       $settings += $form_state->getValue([
         'editor',
         'settings',
         'plugins',
         'drupal_blocks',
         'allowed_blocks',
-        $group_reference,
+        $key,
       ]);
     }
 

@@ -2,9 +2,12 @@ services:
   grapesjs_editor.editor_checker:
     class: Drupal\grapesjs_editor\Services\EditorChecker
     arguments: [ '@config.factory', '@current_route_match' ]
-  grapesjs_editor.asset_manager:
-    class: Drupal\grapesjs_editor\Services\AssetManager
-    arguments: [ '@image.factory' ]
   grapesjs_editor.plugin_manager:
     class: Drupal\grapesjs_editor\PluginManager
     parent: default_plugin_manager
+  grapesjs_editor.asset_manager:
+    class: Drupal\grapesjs_editor\Services\AssetManager
+    arguments: [ '@image.factory' ]
+  grapesjs_editor.block_manager:
+    class: Drupal\grapesjs_editor\Services\BlockManager
+    arguments: [ '@plugin.manager.block', '@context.repository', '@current_user', '@renderer' ]
