@@ -1,0 +1,46 @@
+drupal-block {
+  display: block;
+}
+
+drupal-block .gjs-drupal-block {
+  display: block;
+  padding: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+drupal-block .gjs-drupal-block.gjs-block-error {
+  color: #b71d1d;
+  background-color: #d27878;
+}
+
+/* https://loading.io/css/ */
+drupal-block .lds-dual-ring {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+drupal-block .lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  border-color: #333 transparent #333 transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

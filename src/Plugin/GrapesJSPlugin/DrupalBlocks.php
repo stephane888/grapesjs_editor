@@ -120,6 +120,12 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
 
     return [
       'grapesSettings' => [
+        'canvas' => [
+          'styles' => [
+            Url::fromRoute('<front>', [], ['absolute' => TRUE])
+              ->toString() . drupal_get_path('module', 'grapesjs_editor') . '/libraries/css/plugins/drupal-blocks/canvas.css',
+          ],
+        ],
         'plugins' => [
           'drupal-blocks',
         ],

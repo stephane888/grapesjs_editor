@@ -11,6 +11,17 @@
       label: Drupal.t('Drupal Blocks'),
       open: false,
     };
+    const setComponentName = function (component) {
+      const attrs = component.model.getAttributes();
+      if (typeof attrs['block-plugin-id'] !== 'undefined') {
+        const blockId = `drupal-block-${attrs['block-plugin-id']}`;
+        const block = blockManager.get(blockId);
+
+        if (block) {
+          component.model.set('name', block.get('label'));
+        }
+      }
+    };
     const disableChildComponents = function (components) {
       components.forEach(function (c) {
         c.set({
@@ -27,6 +38,11 @@
           disableChildComponents(c.components());
         }
       });
+    };
+    const renderComponentContent = function (component, content) {
+      component.model.empty().components().add(content);
+      setComponentName(component);
+      disableChildComponents(component.model.components());
     };
 
     /* Component type : Drupal Block */
@@ -80,9 +96,23 @@
       view: {
         init: function (component) {
           if (component.model.components().length === 0) {
+            component.model.empty().components().add({
+              tagName: `div`,
+              attributes: {
+                class: 'gjs-drupal-block',
+              },
+              content: '<div class="lds-dual-ring"></div> ' + Drupal.t('Loading...'),
+            });
             $.get(options.block_route, component.model.get('attributes')).then(function (response) {
-              component.model.components().add(response);
-              disableChildComponents(component.model.components());
+              renderComponentContent(component, response);
+            }).catch(function (response) {
+              renderComponentContent(component, {
+                tagName: `div`,
+                attributes: {
+                  class: 'gjs-drupal-block gjs-block-error',
+                },
+                content: response.responseJSON,
+              });
             });
           }
         }
