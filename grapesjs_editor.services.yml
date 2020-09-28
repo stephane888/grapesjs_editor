@@ -11,3 +11,6 @@ services:
   grapesjs_editor.block_manager:
     class: Drupal\grapesjs_editor\Services\BlockManager
     arguments: [ '@plugin.manager.block', '@context.repository', '@current_user', '@renderer' ]
+  grapesjs_editor.field_manager:
+    class: Drupal\grapesjs_editor\Services\FieldManager
+    arguments: ['@entity_type.manager', '@entity_field.manager', '@current_route_match', '@renderer' ]

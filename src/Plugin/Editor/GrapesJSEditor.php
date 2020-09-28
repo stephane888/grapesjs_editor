@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 use Drupal\editor\Plugin\EditorBase;
 use Drupal\grapesjs_editor\PluginManager;
@@ -128,6 +129,12 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
   public function getJSSettings(Editor $editor) {
     $settings = [
       'grapesSettings' => [
+        'canvas' => [
+          'styles' => [
+            Url::fromRoute('<front>', [], ['absolute' => TRUE])
+              ->toString() . drupal_get_path('module', 'grapesjs_editor') . '/libraries/css/canvas.css',
+          ],
+        ],
         'plugins' => [],
         'pluginsOpts' => [],
       ],

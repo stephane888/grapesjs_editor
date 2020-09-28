@@ -163,7 +163,7 @@ class BlockManager {
    *   The block render markup.
    *
    * @throws \Exception
-   *   Thrown if the plugin definition is invalid.
+   *   Thrown if renderer failed.
    */
   public function renderBlock(BlockBase $block) {
     $render = $block->build();

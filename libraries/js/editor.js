@@ -34,10 +34,10 @@
       Drupal.grapesjs.on('load', function (editor) {
         /* Disable Drupal form submit */
         $('#gjs-clm-new').on('keydown', function (e) {
-          if(e.keyCode === 13) {
+          if (e.keyCode === 13) {
             e.preventDefault();
           }
-        })
+        });
       })
     },
 

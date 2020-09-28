@@ -62,3 +62,12 @@ drupal-blocks:
     - core/jquery
     - core/drupal
     - grapesjs_editor/grapesjs
+
+drupal-fields:
+  version: VERSION
+  js:
+    libraries/js/plugins/drupal-fields/plugin.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - grapesjs_editor/grapesjs

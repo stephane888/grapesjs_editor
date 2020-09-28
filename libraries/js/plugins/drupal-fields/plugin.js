@@ -1,21 +1,21 @@
 /**
  * @file
- * Contains drupal-blocks.js
+ * Contains drupal-fields.js
  */
 (function ($, Drupal, grapesjs) {
-  grapesjs.plugins.add('drupal-blocks', function (editor, options) {
+  grapesjs.plugins.add('drupal-fields', function (editor, options) {
     const blockManager = editor.BlockManager;
     const domComponents = editor.DomComponents;
     const category = {
-      id: 'drupal-blocks',
-      label: Drupal.t('Drupal Blocks'),
+      id: 'drupal-fields',
+      label: Drupal.t('Drupal Fields'),
       open: false,
-      order: 20,
+      order: 10,
     };
     const setComponentName = function (component) {
       const attrs = component.model.getAttributes();
-      if (typeof attrs['block-plugin-id'] !== 'undefined') {
-        const blockId = `drupal-block-${attrs['block-plugin-id']}`;
+      if (typeof attrs['field-name'] !== 'undefined') {
+        const blockId = `drupal-field-${attrs['field-name']}`;
         const block = blockManager.get(blockId);
 
         if (block) {
@@ -46,15 +46,15 @@
       disableChildComponents(component.model.components());
     };
 
-    /* Component type : Drupal Block */
-    domComponents.addType('drupal-block', {
+    /* Component type : Drupal Field */
+    domComponents.addType('drupal-field', {
       isComponent: function (el) {
-        return el && el.tagName && el.tagName === 'DRUPAL-BLOCK';
+        return el && el.tagName && el.tagName === 'DRUPAL-FIELD';
       },
       model: {
         defaults: {
-          name: Drupal.t('Drupal Block'),
-          tagName: `drupal-block`,
+          name: Drupal.t('Drupal Field'),
+          tagName: `drupal-field`,
           editable: false,
           droppable: false,
           stylable: false,
@@ -100,17 +100,18 @@
             component.model.empty().components().add({
               tagName: `div`,
               attributes: {
-                class: 'gjs-drupal-block',
+                class: 'gjs-drupal-field',
               },
               content: '<div class="lds-dual-ring"></div> ' + Drupal.t('Loading...'),
             });
-            $.get(options.block_route, component.model.get('attributes')).then(function (response) {
+
+            $.get(options.field_route, component.model.get('attributes')).then(function (response) {
               renderComponentContent(component, response);
             }).catch(function (response) {
               renderComponentContent(component, {
                 tagName: `div`,
                 attributes: {
-                  class: 'gjs-drupal-block gjs-block-error',
+                  class: 'gjs-drupal-field gjs-field-error',
                 },
                 content: response.responseJSON,
               });
@@ -120,18 +121,18 @@
       }
     });
 
-    /* Blocks : Drupal Block */
-    options.blocks.forEach(function (block) {
-      const blockId = `drupal-block-${block.plugin_id}`;
+    /* Blocks : Drupal Field */
+    options.fields.forEach(function (field) {
+      const fieldId = `drupal-field-${field.name}`;
 
-      blockManager.add(blockId, {
-        label: block.label,
+      blockManager.add(fieldId, {
+        label: field.label,
         category: category,
         attributes: { class: 'fa fa-drupal' },
         content: {
-          type: 'drupal-block',
+          type: 'drupal-field',
           attributes: {
-            'block-plugin-id': block.plugin_id,
+            'field-name': field.name,
           }
         }
       });

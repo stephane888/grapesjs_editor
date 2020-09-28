@@ -11,3 +11,27 @@ grapesjs_editor.get_block:
     _controller: 'Drupal\grapesjs_editor\Controller\BlockController::block'
   requirements:
     _permission: 'use text format grapesjs_editor'
+
+grapesjs_editor.get_field_by_node_type:
+  path: '/grapesjs-editor/blocks/{node_type}/field'
+  defaults:
+    _controller: 'Drupal\grapesjs_editor\Controller\BlockController::field'
+  requirements:
+    _permission: 'use text format grapesjs_editor'
+  options:
+    parameters:
+      node_type:
+        type: entity:node_type
+
+grapesjs_editor.get_field_by_node:
+  path: '/grapesjs-editor/blocks/{node_type}/{node}/field'
+  defaults:
+    _controller: 'Drupal\grapesjs_editor\Controller\BlockController::field'
+  requirements:
+    _permission: 'use text format grapesjs_editor'
+  options:
+    parameters:
+      node_type:
+        type: entity:node_type
+      node:
+        type: entity:node

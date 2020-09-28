@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @GrapesJSPlugin(
  *   id = "drupal_blocks",
  *   label = @Translation("Drupal Blocks"),
+ *   weight = 20,
  *   module = "grapesjs_editor"
  * )
  */

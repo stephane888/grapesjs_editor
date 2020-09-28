@@ -9,6 +9,7 @@
     const category = {
       id: 'basic',
       label: Drupal.t('Basic'),
+      order: 0,
     };
 
     /* Component type : Heading */

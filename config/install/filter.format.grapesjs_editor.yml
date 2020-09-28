@@ -21,3 +21,9 @@ filters:
     status: true
     weight: 0
     settings: { }
+  grapesjs_filter_field:
+    id: grapesjs_filter_field
+    provider: grapesjs_editor
+    status: true
+    weight: 0
+    settings: { }
