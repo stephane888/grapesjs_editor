@@ -5,6 +5,9 @@ services:
   grapesjs_editor.plugin_manager:
     class: Drupal\grapesjs_editor\PluginManager
     parent: default_plugin_manager
+  grapesjs_editor.library_resolver:
+    class: Drupal\grapesjs_editor\Services\LibraryResolver
+    arguments: [ '@theme_handler', '@theme.initialization', '@asset.resolver' ]
   grapesjs_editor.asset_manager:
     class: Drupal\grapesjs_editor\Services\AssetManager
     arguments: [ '@image.factory' ]
