@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Contains grapesjs_reusable_blocks.module.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function grapesjs_reusable_blocks_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.grapesjs_reusable_blocks':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The GrapesJS Reusable Blocks module allows the creation of reusable blocks.') . '</p>';
+      return ['#markup' => $output];
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_create_access().
+ *
+ * Restricts access to GrapesJS Block add form.
+ */
+function grapesjs_reusable_blocks_block_content_create_access(AccountInterface $account, array $context, $entity_bundle) {
+  if ($entity_bundle === 'grapesjs_block') {
+    return AccessResult::forbidden();
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Removes GrapesJS Block in add block page.
+ */
+function grapesjs_reusable_blocks_preprocess_block_content_add_list(&$variables) {
+  if (!empty($variables['content']['grapesjs_block'])) {
+    unset($variables['content']['grapesjs_block']);
+  }
+  if (!empty($variables['types']['grapesjs_block'])) {
+    unset($variables['types']['grapesjs_block']);
+  }
+}
+
+/**
+ * Implements hook_entity_access().
+ *
+ * Restricts access to GrapesJS Block update and delete.
+ */
+function grapesjs_reusable_blocks_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
+  $block_content_access = $entity->bundle() === 'grapesjs_block' && $operation === 'update';
+  $block_content_type_access = $entity->bundle() === 'block_content_type' && $entity->id() === 'grapesjs_block' && in_array($operation, [
+    'update',
+    'delete',
+  ]);
+  $block_content_type_fields_access = $entity->bundle() === 'field_config' && $entity->id() === 'block_content.grapesjs_block.body' && in_array($operation, [
+    'update',
+    'delete',
+  ]);
+
+  return AccessResult::forbiddenIf($block_content_access || $block_content_type_access || $block_content_type_fields_access);
+}
+
+/**
+ * Implements hook_entity_operation_alter().
+ */
+function grapesjs_reusable_blocks_entity_operation_alter(array &$operations, EntityInterface $entity) {
+  if ($entity->bundle() === 'block_content_type' && $entity->id() === 'grapesjs_block') {
+    $operations = [];
+  }
+  if ($entity->bundle() === 'field_config' && $entity->id() === 'block_content.grapesjs_block.body') {
+    $operations = [];
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Removes "Add Field" button on manage fields page.
+ */
+function grapesjs_reusable_blocks_preprocess_menu_local_action(&$variables) {
+  if (!empty($variables['link']) && !empty($variables['link']['#url']) && $variables['link']['#url'] instanceof Url) {
+    /* @var Url $route */
+    $route = $variables['link']['#url'];
+    if ($route->getRouteName() === 'field_ui.field_storage_config_add_block_content' && in_array('grapesjs_block', $route->getRouteParameters())) {
+      unset($variables['link']);
+    }
+  }
+}

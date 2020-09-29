@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - grapesjs_reusable_blocks
+id: grapesjs_block
+label: 'GrapesJS Block'
+revision: 0
+description: 'Build your block on GrapesJS editor and re-use it everywhere!'

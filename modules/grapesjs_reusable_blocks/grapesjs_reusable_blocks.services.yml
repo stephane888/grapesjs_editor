@@ -1,0 +1,5 @@
+services:
+  grapesjs_reusable_blocks.route_subscriber:
+    class: Drupal\grapesjs_reusable_blocks\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
