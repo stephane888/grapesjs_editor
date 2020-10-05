@@ -60,27 +60,6 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
   }
 
   /**
-   * Returns the block list.
-   *
-   * @return array
-   *   The block list.
-   */
-  protected function getPluginBlocks() {
-    // For page_title_block : https://www.drupal.org/node/2938129.
-    $restricted_blocks = ['broken', 'page_title_block', 'system_main_block'];
-
-    // Get blocks definition.
-    $definitions = $this->blockManager->getFilteredDefinitions('block_ui', $this->contextRepository->getAvailableContexts());
-    foreach ($restricted_blocks as $plugin_id) {
-      if (isset($definitions[$plugin_id])) {
-        unset($definitions[$plugin_id]);
-      }
-    }
-
-    return $definitions;
-  }
-
-  /**
    * {@inheritDoc}
    */
   public function getLibraries(Editor $editor) {

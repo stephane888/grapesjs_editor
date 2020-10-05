@@ -7,7 +7,7 @@ dependencies:
     - grapesjs_editor
 name: 'GrapesJS Editor'
 format: grapesjs_editor
-weight: 0
+weight: -5
 filters:
   editor_file_reference:
     id: editor_file_reference
