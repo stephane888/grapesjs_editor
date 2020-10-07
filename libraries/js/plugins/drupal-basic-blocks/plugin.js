@@ -11,6 +11,31 @@
       label: Drupal.t('Basic'),
       order: 0,
     };
+    const categoryLayout = {
+      id: 'layout',
+      label: Drupal.t('Layout'),
+      order: 5,
+      open: false,
+    };
+
+    /* Create new text component on Enter key press */
+    editor.on('load', function () {
+      editor.Canvas.getBody().addEventListener('keydown', e => {
+        const component = editor.getSelected();
+        if (component.get('type') === 'text' && e.keyCode === 13 && !e.shiftKey) {
+          e.preventDefault();
+
+          // Clone the current text with style
+          const newComponent = component.clone();
+          component.parent().append(newComponent);
+          // Empty the content
+          newComponent.empty();
+          // Select and focus new component
+          editor.select(newComponent);
+          newComponent.trigger('focus');
+        }
+      });
+    });
 
     /* Component type : Heading */
     domComponents.addType('heading', {
@@ -28,12 +53,12 @@
             changeProp: 1,
             type: 'select',
             options: [
-              { id: 'h1', name: Drupal.t('Heading 1') },
-              { id: 'h2', name: Drupal.t('Heading 2') },
-              { id: 'h3', name: Drupal.t('Heading 3') },
-              { id: 'h4', name: Drupal.t('Heading 4') },
-              { id: 'h5', name: Drupal.t('Heading 5') },
-              { id: 'h6', name: Drupal.t('Heading 6') },
+              {id: 'h1', name: Drupal.t('Heading 1')},
+              {id: 'h2', name: Drupal.t('Heading 2')},
+              {id: 'h3', name: Drupal.t('Heading 3')},
+              {id: 'h4', name: Drupal.t('Heading 4')},
+              {id: 'h5', name: Drupal.t('Heading 5')},
+              {id: 'h6', name: Drupal.t('Heading 6')},
             ]
           }],
         },
@@ -56,8 +81,8 @@
             changeProp: 1,
             type: 'select',
             options: [
-              { id: 'ul', name: Drupal.t('Unordered') },
-              { id: 'ol', name: Drupal.t('Ordered') },
+              {id: 'ul', name: Drupal.t('Unordered')},
+              {id: 'ol', name: Drupal.t('Ordered')},
             ]
           }],
         },
@@ -79,11 +104,24 @@
       },
     });
 
+    /* Component type : Group */
+    domComponents.addType('group', {
+      isComponent: function (el) {
+        return el && el.tagName && el.tagName === 'DIV';
+      },
+      model: {
+        defaults: {
+          name: Drupal.t('Group'),
+          tagName: 'div',
+        },
+      },
+    });
+
     /* Block : Heading */
     blockManager.add('heading', {
       label: Drupal.t('Heading'),
       category: category,
-      attributes: { class: 'fa fa-header' },
+      attributes: {class: 'fa fa-header'},
       content: {
         type: 'heading',
         content: Drupal.t('Insert your text here'),
@@ -94,7 +132,7 @@
     blockManager.add('text', {
       label: Drupal.t('Text'),
       category: category,
-      attributes: { class: 'fa fa-paragraph' },
+      attributes: {class: 'fa fa-paragraph'},
       content: {
         type: 'text',
         tagName: 'p',
@@ -106,7 +144,7 @@
     blockManager.add('image', {
       label: Drupal.t('Image'),
       category: category,
-      attributes: { class: 'fa fa-picture-o' },
+      attributes: {class: 'fa fa-picture-o'},
       select: true,
       activate: true,
       content: {
@@ -118,14 +156,24 @@
     blockManager.add('list', {
       label: Drupal.t('List'),
       category: category,
-      attributes: { class: 'fa fa-list' },
+      attributes: {class: 'fa fa-list'},
       content: {
         type: 'list',
         components: [
-          { type: 'list-item', content: 'Option 1' },
-          { type: 'list-item', content: 'Option 2' },
-          { type: 'list-item', content: 'Option 3' },
+          {type: 'list-item', content: 'Option 1'},
+          {type: 'list-item', content: 'Option 2'},
+          {type: 'list-item', content: 'Option 3'},
         ],
+      }
+    });
+
+    /* Block : Group */
+    blockManager.add('group', {
+      label: Drupal.t('Group'),
+      category: categoryLayout,
+      attributes: {class: 'fa fa-object-group'},
+      content: {
+        type: 'group',
       }
     });
   });

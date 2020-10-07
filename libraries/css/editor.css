@@ -11,3 +11,10 @@
   background: none;
   box-shadow: none;
 }
+
+.gjs-alert-error {
+  padding: .5rem 1rem;
+  font-weight: bold;
+  color: #b71d1d;
+  background-color: #d27878;
+}

@@ -1,0 +1,7 @@
+grapesjs_reusable_blocks.create_block:
+  path: '/grapesjs-editor/reusable-blocks/block/create'
+  methods: [POST]
+  defaults:
+    _controller: 'Drupal\grapesjs_reusable_blocks\Controller\BlockController::createBlock'
+  requirements:
+    _permission: 'use text format grapesjs_editor'

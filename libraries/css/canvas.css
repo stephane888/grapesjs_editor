@@ -1,3 +1,11 @@
+[data-gjs-type="group"] {
+  min-height: 2rem;
+}
+
+[data-gjs-type="text"] {
+  min-height: 1rem;
+}
+
 /* https://loading.io/css/ */
 .lds-dual-ring {
   display: inline-block;
