@@ -143,13 +143,7 @@ function grapesjs_editor_form_node_form_alter(&$form, FormStateInterface $form_s
   /* @var \Drupal\grapesjs_editor\Services\EditorChecker $editor_checker */
   $editor_checker = Drupal::service('grapesjs_editor.editor_checker');
 
-  if ($editor_checker->isGrapesJsEditorNodeForm()) {
-    $form['gjs'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => ['gjs'],
-      ],
-    ];
+  if ($editor_checker->isGrapesJsEditorNodeForm() && isset($form['body'])) {
+    $form['body']['#attributes']['class'][] = 'field--gjs';
   }
 }

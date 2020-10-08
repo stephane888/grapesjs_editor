@@ -2,7 +2,13 @@
   Drupal.grapesjs = null;
 
   Drupal.editors.grapesjs_editor = {
+    gjsContainer: $('<div/>', {class: 'gjs'}),
     attach(element, format) {
+      /* Rebuild body field */
+      $(element).parent().prepend(this.gjsContainer);
+      $(element).hide();
+
+      /* Add body field element to plugin options */
       format.editorSettings.grapesSettings.plugins.forEach((name, plugin) => {
         if (typeof format.editorSettings.grapesSettings.pluginsOpts[name] === 'undefined') {
           format.editorSettings.grapesSettings.pluginsOpts[name] = {};
@@ -13,7 +19,7 @@
 
       const grapesSettings = {
         // Indicate where to init the editor. You can also pass an HTMLElement
-        container: $('.gjs').get(0),
+        container: this.gjsContainer.get(0),
         ...format.editorSettings.grapesSettings
       };
 
@@ -21,17 +27,18 @@
 
       Drupal.grapesjs.on('load', () => {
         /* Disable Drupal form submit */
-        $('.gjs input').on('keydown', function (e) {
+        $('input', this.gjsContainer).on('keydown', function (e) {
           if (e.keyCode === 13) {
             e.preventDefault();
           }
         });
-      })
+      });
     },
 
-    detach() {
+    detach(element) {
+      $(element).show();
       Drupal.grapesjs.destroy();
-      $('.gjs').removeAttr('style');
+      this.gjsContainer.removeAttr('style');
     },
 
     onChange() {
