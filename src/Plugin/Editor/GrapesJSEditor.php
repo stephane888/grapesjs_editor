@@ -4,6 +4,7 @@ namespace Drupal\grapesjs_editor\Plugin\Editor;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -47,6 +48,13 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
   protected $currentUser;
 
   /**
+   * The language manager service.
+   *
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
+
+  /**
    * The library resolver service.
    *
    * @var \Drupal\grapesjs_editor\Services\LibraryResolver
@@ -80,6 +88,8 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
    *   The route match service.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   *   The language manager service.
    * @param \Drupal\grapesjs_editor\Services\LibraryResolver $library_resolver
    *   The library resolver service.
    * @param \Drupal\grapesjs_editor\PluginManager $plugin_manager
@@ -87,10 +97,11 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
    * @param \Drupal\grapesjs_editor\Services\AssetManager $asset_manager
    *   The asset manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RouteMatchInterface $route_match, AccountProxyInterface $current_user, LibraryResolver $library_resolver, PluginManager $plugin_manager, AssetManager $asset_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RouteMatchInterface $route_match, AccountProxyInterface $current_user, LanguageManagerInterface $language_manager, LibraryResolver $library_resolver, PluginManager $plugin_manager, AssetManager $asset_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->routeMatch = $route_match;
     $this->currentUser = $current_user;
+    $this->languageManager = $language_manager;
     $this->libraryResolver = $library_resolver;
     $this->pluginManager = $plugin_manager;
     $this->assetManager = $asset_manager;
@@ -106,6 +117,7 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
       $plugin_definition,
       $container->get('current_route_match'),
       $container->get('current_user'),
+      $container->get('language_manager'),
       $container->get('grapesjs_editor.library_resolver'),
       $container->get('grapesjs_editor.plugin_manager'),
       $container->get('grapesjs_editor.asset_manager')
@@ -162,6 +174,8 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
     }
 
     $settings = [
+      'currentLanguage' => $this->languageManager->getCurrentLanguage()
+        ->getId(),
       'grapesSettings' => [
         'canvas' => [
           'styles' => array_merge([

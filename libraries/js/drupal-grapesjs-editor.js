@@ -25,6 +25,16 @@
 
       Drupal.grapesjs = grapesjs.init(grapesSettings);
 
+      /* Load current locale */
+      const locale = format.editorSettings.currentLanguage;
+      import(/* webpackMode: "eager" */ `grapesjs/src/i18n/locale/${locale}`).then(function (module) {
+        const messages = {[locale]: module.default};
+        Drupal.grapesjs.I18n.setLocale(locale);
+        Drupal.grapesjs.I18n.addMessages(messages);
+      }).catch(() => {
+        console.error(`Locale "${locale}" not found.`);
+      });
+
       Drupal.grapesjs.on('load', () => {
         /* Disable Drupal form submit */
         $('input', this.gjsContainer).on('keydown', function (e) {
