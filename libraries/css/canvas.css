@@ -1,9 +1,28 @@
-[data-gjs-type="group"] {
+[data-gjs-type="section"] {
   min-height: 2rem;
 }
 
-[data-gjs-type="text"] {
+[data-gjs-type="paragraph"] {
   min-height: 1rem;
+}
+
+[data-gjs-type="drupal-block"] {
+  display: block;
+}
+
+[data-gjs-type="drupal-block"] .gjs-drupal-block,
+[data-gjs-type="drupal-field"] .gjs-drupal-block {
+  display: block;
+  padding: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+[data-gjs-type="drupal-block"] .gjs-drupal-block.gjs-block-error,
+[data-gjs-type="drupal-field"] .gjs-drupal-block.gjs-block-error {
+  color: #b71d1d;
+  background-color: #d27878;
 }
 
 /* https://loading.io/css/ */

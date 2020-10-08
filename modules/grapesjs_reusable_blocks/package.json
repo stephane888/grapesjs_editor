@@ -1,0 +1,20 @@
+{
+  "name": "grapesjs_reusable_blocks",
+  "version": "1.0.0",
+  "description": "The GrapesJS Reusable Blocks module allows the creation of reusable blocks.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development",
+    "build": "webpack --mode production"
+  },
+  "author": "Kevin Philippe",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-loader": "^8.1.0",
+    "path": "^0.12.7",
+    "webpack": "^5.0.0-rc.4",
+    "webpack-cli": "^3.3.12"
+  }
+}

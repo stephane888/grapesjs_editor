@@ -17,7 +17,7 @@ editor:
     base:
       libraries/css/editor.css: { }
   js:
-    libraries/js/editor.js: { }
+    libraries/js/drupal-grapesjs-editor.min.js: { minified: true }
   dependencies:
     - core/jquery
     - core/drupal
@@ -30,44 +30,24 @@ editor:
 drupal-storage:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-storage/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-storage/drupal-storage.min.js: { minified: true }
 
 drupal-asset:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-asset/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-asset/drupal-asset.min.js: { minified: true }
 
 drupal-basic-blocks:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-basic-blocks/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-basic-blocks/drupal-basic-blocks.min.js: { minified: true }
 
 drupal-blocks:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-blocks/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-blocks/drupal-blocks.min.js: { minified: true }
 
 drupal-fields:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-fields/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-fields/drupal-fields.min.js: { minified: true }

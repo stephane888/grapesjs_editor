@@ -1,8 +1,4 @@
 drupal-reusable-blocks:
   version: VERSION
   js:
-    libraries/js/plugins/drupal-reusable-blocks/plugin.js: { }
-  dependencies:
-    - core/jquery
-    - core/drupal
-    - grapesjs_editor/grapesjs
+    libraries/js/plugins/drupal-reusable-blocks/drupal-reusable-blocks.min.js: { minified: true }

@@ -3,9 +3,7 @@
 
   Drupal.editors.grapesjs_editor = {
     attach(element, format) {
-      console.log(format);
-
-      format.editorSettings.grapesSettings.plugins.forEach(function (name, plugin) {
+      format.editorSettings.grapesSettings.plugins.forEach((name, plugin) => {
         if (typeof format.editorSettings.grapesSettings.pluginsOpts[name] === 'undefined') {
           format.editorSettings.grapesSettings.pluginsOpts[name] = {};
         }
@@ -13,14 +11,15 @@
         format.editorSettings.grapesSettings.pluginsOpts[name].element = element;
       });
 
-      const grapesSettings = Object.assign({
+      const grapesSettings = {
         // Indicate where to init the editor. You can also pass an HTMLElement
         container: $('.gjs').get(0),
-      }, format.editorSettings.grapesSettings);
+        ...format.editorSettings.grapesSettings
+      };
 
       Drupal.grapesjs = grapesjs.init(grapesSettings);
 
-      Drupal.grapesjs.on('load', function (editor) {
+      Drupal.grapesjs.on('load', () => {
         /* Disable Drupal form submit */
         $('.gjs input').on('keydown', function (e) {
           if (e.keyCode === 13) {
@@ -30,12 +29,12 @@
       })
     },
 
-    detach(element, format, trigger) {
+    detach() {
       Drupal.grapesjs.destroy();
       $('.gjs').removeAttr('style');
     },
 
-    onChange(element, callback) {
+    onChange() {
     }
   };
 })(jQuery, Drupal, grapesjs);
