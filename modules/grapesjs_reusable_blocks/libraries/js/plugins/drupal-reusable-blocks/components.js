@@ -40,14 +40,18 @@ export default (editor, opts = {}) => {
   /* Toolbar : add reusable action */
   editor.on('component:selected', (component) => {
     const toolbar = component.get('toolbar');
-    const commandExists = toolbar.some(item => item.command === opts.commandId);
 
-    if (!commandExists) {
-      toolbar.unshift({
-        command: opts.commandId,
-        label: '<i class="fa fa-recycle"/>',
-      })
-      component.set('toolbar', toolbar)
+    if (toolbar) {
+      const commandExists = toolbar.some(item => item.command === opts.commandId);
+
+      if (!commandExists) {
+        toolbar.unshift({
+          command: opts.commandId,
+          label: '<i class="fa fa-recycle"/>',
+        });
+
+        component.set('toolbar', toolbar);
+      }
     }
   });
 };
