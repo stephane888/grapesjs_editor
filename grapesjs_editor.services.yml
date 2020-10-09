@@ -1,7 +1,4 @@
 services:
-  grapesjs_editor.editor_checker:
-    class: Drupal\grapesjs_editor\Services\EditorChecker
-    arguments: [ '@config.factory', '@current_route_match' ]
   grapesjs_editor.plugin_manager:
     class: Drupal\grapesjs_editor\PluginManager
     parent: default_plugin_manager
