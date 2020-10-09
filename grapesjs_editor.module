@@ -133,17 +133,3 @@ function _grapesjs_editor_text_format_processor(array $element, FormStateInterfa
 
   return $element;
 }
-
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- *
- * Adds GrapesJs container to node form.
- */
-function grapesjs_editor_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  /* @var \Drupal\grapesjs_editor\Services\EditorChecker $editor_checker */
-  $editor_checker = Drupal::service('grapesjs_editor.editor_checker');
-
-  if ($editor_checker->isGrapesJsEditorNodeForm() && isset($form['body'])) {
-    $form['body']['#attributes']['class'][] = 'field--gjs';
-  }
-}

@@ -1,6 +1,4 @@
 (function ($, Drupal, grapesjs) {
-  Drupal.grapesjs = null;
-
   Drupal.editors.grapesjs_editor = {
     gjsContainer: $('<div/>', {class: 'gjs'}),
     attach(element, format) {
@@ -27,13 +25,15 @@
 
       /* Load current locale */
       const locale = format.editorSettings.currentLanguage;
-      import(/* webpackMode: "eager" */ `grapesjs/src/i18n/locale/${locale}`).then(function (module) {
-        const messages = {[locale]: module.default};
-        Drupal.grapesjs.I18n.setLocale(locale);
-        Drupal.grapesjs.I18n.addMessages(messages);
-      }).catch(() => {
-        console.error(`Locale "${locale}" not found.`);
-      });
+      if (locale !== 'en') {
+        import(/* webpackMode: "eager" */ `grapesjs/src/i18n/locale/${locale}`).then(function (module) {
+          const messages = {[locale]: module.default};
+          Drupal.grapesjs.I18n.setLocale(locale);
+          Drupal.grapesjs.I18n.addMessages(messages);
+        }).catch(() => {
+          console.error(`Locale "${locale}" not found.`);
+        });
+      }
 
       Drupal.grapesjs.on('load', () => {
         /* Disable Drupal form submit */
