@@ -2,12 +2,15 @@
 
 namespace Drupal\grapesjs_editor\Services;
 
+use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\node\NodeTypeInterface;
 
 /**
  * Defines a class to manage field object.
@@ -36,18 +39,18 @@ class FieldManager {
   protected $routeMatch;
 
   /**
-   * The node type.
+   * The entity type.
    *
-   * @var \Drupal\node\NodeTypeInterface|null
+   * @var \Drupal\Core\Entity\EntityTypeInterface|null
    */
-  protected $nodeType;
+  protected $entityType;
 
   /**
-   * The node.
+   * The entity.
    *
-   * @var \Drupal\node\NodeInterface|null
+   * @var \Drupal\Core\Entity\EntityInterface|null
    */
-  protected $node;
+  protected $entity;
 
   /**
    * The renderer service.
@@ -74,38 +77,65 @@ class FieldManager {
     $this->routeMatch = $route_match;
     $this->renderer = $renderer;
 
+    if ($block_content = $this->routeMatch->getParameter('block_content')) {
+      /* @var \Drupal\block_content\BlockContentInterface $block_content */
+      $this->entityType = $block_content->get('type')->entity;
+      $this->entity = $block_content;
+    }
+    else if ($block_content_type = $this->routeMatch->getParameter('block_content_type')) {
+      /* @var \Drupal\block_content\BlockContentTypeInterface $block_content_type */
+      $this->entityType = $block_content_type;
+      $this->entity = NULL;
+    }
+
     if ($node = $this->routeMatch->getParameter('node')) {
       /* @var \Drupal\node\NodeInterface $node */
-      $this->nodeType = $node->get('type')->entity;
-      $this->node = $node;
+      $this->entityType = $node->get('type')->entity;
+      $this->entity = $node;
     }
-    else {
-      if ($node_type = $this->routeMatch->getParameter('node_type')) {
-        /* @var \Drupal\node\NodeTypeInterface $node_type */
-        $this->nodeType = $node_type;
-        $this->node = NULL;
-      }
+    else if ($node_type = $this->routeMatch->getParameter('node_type')) {
+      /* @var \Drupal\node\NodeTypeInterface $node_type */
+      $this->entityType = $node_type;
+      $this->entity = NULL;
     }
   }
 
   /**
-   * Returns the node type object.
+   * Returns the entity type object.
    *
-   * @return \Drupal\node\NodeTypeInterface|null
-   *   The node type.
+   * @return \Drupal\Core\Entity\EntityTypeInterface|null
+   *   The entity type.
    */
-  public function getNodeType() {
-    return $this->nodeType;
+  public function getEntityType() {
+    return $this->entityType;
   }
 
   /**
-   * Returns the node object.
+   * Returns the entity object.
    *
-   * @return \Drupal\node\NodeInterface|null
-   *   The node.
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity.
    */
-  public function getNode() {
-    return $this->node;
+  public function getEntity() {
+    return $this->entity;
+  }
+
+  /**
+   * Returns the field definition array.
+   *
+   * @return \Drupal\Core\Field\FieldDefinitionInterface[]
+   *   The field definitions.
+   */
+  protected function getFieldDefinitions() {
+    $entity_type_id = $this->entity ? $this->entity->getEntityTypeId() : NULL;
+    if (!$entity_type_id && $this->entityType instanceof BlockContentTypeInterface) {
+      $entity_type_id = 'block_content';
+    }
+    if (!$entity_type_id && $this->entityType instanceof NodeTypeInterface) {
+      $entity_type_id = 'node';
+    }
+
+    return $this->entityFieldManager->getFieldDefinitions($entity_type_id, $this->entityType->id());
   }
 
   /**
@@ -115,11 +145,18 @@ class FieldManager {
    *   The field definitions array.
    */
   public function getFields() {
-    // Get field definitions.
-    $definitions = $this->entityFieldManager->getFieldDefinitions('node', $this->nodeType->id());
-    unset($definitions['body']);
+    $definitions = $this->getFieldDefinitions();
 
     return array_filter($definitions, function ($definition) {
+      /* @var \Drupal\Core\Field\BaseFieldDefinition $definition */
+      if (in_array($definition->getType(), [
+        'text',
+        'text_long',
+        'text_with_summary',
+      ])) {
+        return FALSE;
+      }
+
       return $definition->getDisplayOptions('view');
     });
   }
@@ -134,20 +171,20 @@ class FieldManager {
    *   The field object or null if field is not found or not accessible.
    */
   public function getField(string $name) {
-    $field_definitions = $this->entityFieldManager->getFieldDefinitions('node', $this->nodeType->id());
+    $definitions = $this->getFieldDefinitions();
 
-    if (!empty($this->node) && $this->node->hasField($name)) {
+    if (!empty($this->entity) && $this->entity->hasField($name)) {
       /* @var \Drupal\Core\Field\FieldItemList $field_item_list */
-      $field_item_list = $this->node->get($name);
+      $field_item_list = $this->entity->get($name);
       $access = $field_item_list->access();
 
       if (($access instanceof AccessResultInterface && !$access->isForbidden()) || $access === TRUE) {
-        return $field_definitions[$name];
+        return $definitions[$name];
       }
     }
     else {
-      if (!empty($field_definitions[$name])) {
-        return $field_definitions[$name];
+      if (!empty($definitions[$name])) {
+        return $definitions[$name];
       }
     }
 
@@ -187,9 +224,9 @@ class FieldManager {
    *   Thrown if renderer failed.
    */
   public function renderField(FieldDefinitionInterface $field_definition) {
-    if (!empty($this->node) && $this->node->hasField($field_definition->getName())) {
+    if (!empty($this->entity) && $this->entity->hasField($field_definition->getName())) {
       /* @var \Drupal\Core\Field\FieldItemList $field_item_list */
-      $field_item_list = $this->node->get($field_definition->getName());
+      $field_item_list = $this->entity->get($field_definition->getName());
       $access = $field_item_list->access();
 
       if (($access instanceof AccessResultInterface && !$access->isForbidden()) || $access === TRUE) {
@@ -199,6 +236,28 @@ class FieldManager {
     }
 
     return NULL;
+  }
+
+  /**
+   * Generate the field route to request field renderer.
+   *
+   * @return \Drupal\Core\GeneratedUrl|string
+   *   The field route.
+   */
+  public function generateFieldRoute() {
+    $bundle = $this->entityType instanceof NodeTypeInterface ? 'node' : 'block_content';
+    if ($this->entity) {
+      $route_name = 'grapesjs_editor.get_field_by_' . $bundle;
+      $route_parameters[$bundle . '_type'] = $this->entity->bundle();
+      $route_parameters[$bundle] = $this->entity->id();
+    }
+    else {
+      $route_name = 'grapesjs_editor.get_field_by_' . $bundle . '_type';
+      $route_parameters[$bundle . '_type'] = $this->entityType->id();
+    }
+
+    return Url::fromRoute($route_name, $route_parameters)
+      ->toString();
   }
 
 }

@@ -107,7 +107,7 @@ class BlockController extends ControllerBase {
           return new JsonResponse($render);
         }
         else {
-          return new JsonResponse($this->t('Node must be saved for the preview to be visible.'));
+          return new JsonResponse($this->t('Entity must be saved for the preview to be visible.'));
         }
       }
 

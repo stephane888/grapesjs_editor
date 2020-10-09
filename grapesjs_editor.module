@@ -5,6 +5,7 @@
  * Contains grapesjs_editor.module.
  */
 
+use Drupal\block_content\BlockContentInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -56,7 +57,7 @@ function _grapesjs_editor_text_format_processor(array $element, FormStateInterfa
       $entity = $form->getEntity();
       // Check whether entity is of node type, because currently only them are
       // supported.
-      $grapesjs_editor_allowed = $entity instanceof NodeInterface;
+      $grapesjs_editor_allowed = $entity instanceof NodeInterface || $entity instanceof BlockContentInterface;
     }
     // If GrapesJS Editor is not enabled for the current form or
     // current user is not allowed to use the format, disable the choice of

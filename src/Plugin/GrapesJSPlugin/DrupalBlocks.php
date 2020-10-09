@@ -78,7 +78,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
     $plugin_blocks = $this->blockManager->getBlocks();
 
     foreach ($allowed_blocks as $plugin_id => $allowed) {
-      if ($allowed) {
+      if ($allowed && !empty($plugin_blocks[$plugin_id])) {
         $blocks[] = [
           'label' => $plugin_blocks[$plugin_id]['admin_label'],
           'plugin_id' => $plugin_id,

@@ -27,7 +27,7 @@ class DrupalFields extends GrapesJSPluginBase implements ContainerFactoryPluginI
    *
    * @var \Drupal\grapesjs_editor\Services\FieldManager
    */
-  private $fieldManager;
+  protected $fieldManager;
 
   /**
    * DrupalFields constructor.
@@ -81,16 +81,6 @@ class DrupalFields extends GrapesJSPluginBase implements ContainerFactoryPluginI
       ];
     }
 
-    if ($node = $this->fieldManager->getNode()) {
-      $route_name = 'grapesjs_editor.get_field_by_node';
-      $route_parameters['node_type'] = $this->fieldManager->getNodeType()->id();
-      $route_parameters['node'] = $node->id();
-    }
-    else {
-      $route_name = 'grapesjs_editor.get_field_by_node_type';
-      $route_parameters['node_type'] = $this->fieldManager->getNodeType()->id();
-    }
-
     return [
       'grapesSettings' => [
         'plugins' => [
@@ -98,8 +88,7 @@ class DrupalFields extends GrapesJSPluginBase implements ContainerFactoryPluginI
         ],
         'pluginsOpts' => [
           'drupal-fields' => [
-            'field_route' => Url::fromRoute($route_name, $route_parameters)
-              ->toString(),
+            'field_route' => $this->fieldManager->generateFieldRoute(),
             'fields' => $fields,
           ],
         ],
