@@ -7,6 +7,15 @@ import tagNameTrait from '../../traits/tag-name-trait';
 export default (editor, opts = {}) => {
   const domComponents = editor.DomComponents;
 
+  /* Component type : Comment */
+  domComponents.addType('comment', {
+    model: {
+      toHTML: function () {
+        return '';
+      },
+    },
+  });
+
   /* Component type : Heading */
   domComponents.addType('heading', {
     extend: 'text',

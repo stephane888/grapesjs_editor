@@ -2,6 +2,8 @@
  * @file
  * Contains drupal-storage.js
  */
+import $ from 'jquery';
+
 export default (editor, opts = {}) => {
   const storageManager = editor.StorageManager;
 
@@ -11,12 +13,13 @@ export default (editor, opts = {}) => {
       clb({});
     },
     store: (data, clb) => {
-      if (opts.element) {
-        const css = editor.getCss({avoidProtected: true});
-        const style = css && `<style>${css}</style>`;
-        opts.element.value =style + editor.getHtml();
-        opts.element.setAttribute('data-editor-value-is-changed', 'true');
-      }
+      const $container = $(editor.getContainer());
+      const fieldName = $container.data('field-name');
+      const $element = $container.parent().find(`[name="${fieldName}"]`);
+      const css = editor.getCss({avoidProtected: true});
+      const style = css && `<style>${css}</style>`;
+      $element.val(style + editor.getHtml());
+      $element.attr('data-editor-value-is-changed', 'true');
       clb();
     },
   });

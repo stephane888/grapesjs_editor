@@ -34,20 +34,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The route match service.
-   *
-   * @var \Drupal\Core\Routing\RouteMatchInterface
-   */
-  protected $routeMatch;
-
-  /**
-   * The current user.
-   *
-   * @var \Drupal\Core\Session\AccountProxyInterface
-   */
-  protected $currentUser;
-
-  /**
    * The language manager service.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
@@ -69,13 +55,6 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
   protected $pluginManager;
 
   /**
-   * The asset manager service.
-   *
-   * @var \Drupal\grapesjs_editor\Services\AssetManager
-   */
-  protected $assetManager;
-
-  /**
    * GrapesJSEditor constructor.
    *
    * @param array $configuration
@@ -84,27 +63,18 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
-   *   The route match service.
-   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   *   The current user.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager service.
    * @param \Drupal\grapesjs_editor\Services\LibraryResolver $library_resolver
    *   The library resolver service.
    * @param \Drupal\grapesjs_editor\PluginManager $plugin_manager
    *   The plugin manager service.
-   * @param \Drupal\grapesjs_editor\Services\AssetManager $asset_manager
-   *   The asset manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RouteMatchInterface $route_match, AccountProxyInterface $current_user, LanguageManagerInterface $language_manager, LibraryResolver $library_resolver, PluginManager $plugin_manager, AssetManager $asset_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, LanguageManagerInterface $language_manager, LibraryResolver $library_resolver, PluginManager $plugin_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->routeMatch = $route_match;
-    $this->currentUser = $current_user;
     $this->languageManager = $language_manager;
     $this->libraryResolver = $library_resolver;
     $this->pluginManager = $plugin_manager;
-    $this->assetManager = $asset_manager;
   }
 
   /**
@@ -115,12 +85,9 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('current_route_match'),
-      $container->get('current_user'),
       $container->get('language_manager'),
       $container->get('grapesjs_editor.library_resolver'),
-      $container->get('grapesjs_editor.plugin_manager'),
-      $container->get('grapesjs_editor.asset_manager')
+      $container->get('grapesjs_editor.plugin_manager')
     );
   }
 
@@ -164,15 +131,6 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
    * {@inheritDoc}
    */
   public function getJSSettings(Editor $editor) {
-    $value = '';
-    if (($node = $this->routeMatch->getParameter('node')) && $node->hasField('body')) {
-      $value = Xss::filter($node->get('body')->value, array_merge(Xss::getAdminTagList(), [
-        'style',
-        'drupal-block',
-        'drupal-field',
-      ]));
-    }
-
     $settings = [
       'currentLanguage' => $this->languageManager->getCurrentLanguage()
         ->getId(),
@@ -183,7 +141,6 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
               ->toString() . drupal_get_path('module', 'grapesjs_editor') . '/libraries/css/canvas.css',
           ], $this->libraryResolver->getStyles()),
         ],
-        'components' => $value,
         'plugins' => [],
         'pluginsOpts' => [],
       ],

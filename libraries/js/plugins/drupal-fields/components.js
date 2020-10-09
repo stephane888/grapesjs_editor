@@ -24,7 +24,7 @@ export default (editor, opts = {}) => {
         propagate: ['editable', 'droppable', 'stylable'],
         traits: [],
       },
-      toHTML: () => {
+      toHTML: function () {
         const defaultHTML = defaultType.model.prototype.toHTML.call(this);
         const $element = $(defaultHTML);
         $element.empty();
