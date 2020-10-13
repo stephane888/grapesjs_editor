@@ -37,7 +37,7 @@ class BlockRoutes {
       foreach ($paths as $name => $path) {
         $options = [
           'parameters' => [
-            $bundle . '_type' => ['type' => 'entity:' . $bundle . '_type']
+            $bundle . '_type' => ['type' => 'entity:' . $bundle . '_type'],
           ],
         ];
         if ($pos = strpos($path, '{[bundle]}')) {

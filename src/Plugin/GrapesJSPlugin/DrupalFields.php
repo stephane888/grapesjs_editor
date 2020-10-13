@@ -3,7 +3,6 @@
 namespace Drupal\grapesjs_editor\Plugin\GrapesJSPlugin;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 use Drupal\grapesjs_editor\GrapesJSPluginBase;
 use Drupal\grapesjs_editor\GrapesJSPluginInterface;

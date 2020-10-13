@@ -82,7 +82,7 @@ class FieldManager {
       $this->entityType = $block_content->get('type')->entity;
       $this->entity = $block_content;
     }
-    else if ($block_content_type = $this->routeMatch->getParameter('block_content_type')) {
+    elseif ($block_content_type = $this->routeMatch->getParameter('block_content_type')) {
       /* @var \Drupal\block_content\BlockContentTypeInterface $block_content_type */
       $this->entityType = $block_content_type;
       $this->entity = NULL;
@@ -93,7 +93,7 @@ class FieldManager {
       $this->entityType = $node->get('type')->entity;
       $this->entity = $node;
     }
-    else if ($node_type = $this->routeMatch->getParameter('node_type')) {
+    elseif ($node_type = $this->routeMatch->getParameter('node_type')) {
       /* @var \Drupal\node\NodeTypeInterface $node_type */
       $this->entityType = $node_type;
       $this->entity = NULL;

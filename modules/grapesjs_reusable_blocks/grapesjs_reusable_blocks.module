@@ -76,6 +76,6 @@ function grapesjs_reusable_blocks_theme($existing, $type, $theme, $path) {
     'field__block_content__body__grapesjs_block' => [
       'template' => 'field/field--block-content--body--grapesjs-block',
       'base hook' => 'field',
-    ]
+    ],
   ];
 }

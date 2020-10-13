@@ -2,18 +2,14 @@
 
 namespace Drupal\grapesjs_editor\Plugin\Editor;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 use Drupal\editor\Plugin\EditorBase;
 use Drupal\grapesjs_editor\PluginManager;
-use Drupal\grapesjs_editor\Services\AssetManager;
 use Drupal\grapesjs_editor\Services\LibraryResolver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

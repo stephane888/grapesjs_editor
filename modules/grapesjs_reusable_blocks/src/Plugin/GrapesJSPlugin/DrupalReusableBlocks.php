@@ -87,10 +87,10 @@ class DrupalReusableBlocks extends GrapesJSPluginBase implements ContainerFactor
       ->loadByProperties(['type' => 'grapesjs_block']);
 
     foreach ($custom_blocks as $block) {
-        $blocks[] = [
-          'label' => $block->label(),
-          'plugin_id' => 'block_content:' . $block->uuid(),
-        ];
+      $blocks[] = [
+        'label' => $block->label(),
+        'plugin_id' => 'block_content:' . $block->uuid(),
+      ];
     }
 
     return [
