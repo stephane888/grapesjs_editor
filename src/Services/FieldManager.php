@@ -70,6 +70,11 @@ class FieldManager {
    *   The route match service.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   *   Thrown if plugin definition is invalid.
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   *   Thrown if plugin not found.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, RouteMatchInterface $route_match, RendererInterface $renderer) {
     $this->entityTypeManager = $entity_type_manager;
@@ -86,6 +91,15 @@ class FieldManager {
       /* @var \Drupal\block_content\BlockContentTypeInterface $block_content_type */
       $this->entityType = $block_content_type;
       $this->entity = NULL;
+    }
+    elseif ($this->routeMatch->getRouteName() === 'block_content.add_page') {
+      $types = $this->entityTypeManager->getStorage('block_content_type')
+        ->loadMultiple();
+      if ($types && count($types) === 1) {
+        /* @var \Drupal\block_content\BlockContentTypeInterface $block_content_type */
+        $this->entityType = reset($types);
+        $this->entity = NULL;
+      }
     }
 
     if ($node = $this->routeMatch->getParameter('node')) {
