@@ -31,6 +31,19 @@ export default (editor, opts = {}) => {
     });
   }
 
+  /* Block : Link */
+  if (opts.blocks.indexOf('link') >= 0) {
+    blockManager.add('link', {
+      label: opts.linkLabel,
+      category: opts.basicCategory,
+      attributes: {class: 'fa fa-link'},
+      content: {
+        type: 'link',
+        content: opts.linkDefaultContent,
+      }
+    });
+  }
+
   /* Block : Image */
   if (opts.blocks.indexOf('image') >= 0) {
     blockManager.add('image', {
@@ -45,6 +58,22 @@ export default (editor, opts = {}) => {
     });
   }
 
+  /* Block : Video */
+  if (opts.blocks.indexOf('video') >= 0) {
+    blockManager.add('video', {
+      label: opts.videoLabel,
+      category: opts.basicCategory,
+      attributes: { class: 'fa fa-youtube-play' },
+      content: {
+        type: 'video',
+        style: {
+          height: '350px',
+          width: '615px'
+        }
+      }
+    });
+  }
+
   /* Block : List */
   if (opts.blocks.indexOf('list') >= 0) {
     blockManager.add('list', {
@@ -54,6 +83,19 @@ export default (editor, opts = {}) => {
       content: {
         type: 'list',
         components: opts.listDefaultComponents,
+      }
+    });
+  }
+
+  /* Block : Map */
+  if (opts.blocks.indexOf('map') >= 0) {
+    blockManager.add('map', {
+      label: opts.mapLabel,
+      category: opts.basicCategory,
+      attributes: {class: 'fa fa-map-o'},
+      content: {
+        type: 'map',
+        style: { height: '350px' }
       }
     });
   }

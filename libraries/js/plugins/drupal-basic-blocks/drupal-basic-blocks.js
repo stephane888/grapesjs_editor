@@ -7,7 +7,7 @@ import loadBlocks from './blocks';
 
 export default (editor, opts = {}) => {
   const config = {
-    blocks: ['heading', 'paragraph', 'image', 'list', 'section'],
+    blocks: [],
     basicCategory: {
       id: 'basic',
       label: Drupal.t('Basic'),
@@ -33,7 +33,10 @@ export default (editor, opts = {}) => {
     ],
     paragraphLabel: Drupal.t('Paragraph'),
     paragraphDefaultContent: Drupal.t('Insert your text here'),
+    linkLabel: Drupal.t('Link'),
+    linkDefaultContent: Drupal.t('Link'),
     imageLabel: Drupal.t('Image'),
+    videoLabel: Drupal.t('Video'),
     listLabel: Drupal.t('List'),
     listDefaultTagName: 'ul',
     listDefaultComponents: [
@@ -47,6 +50,7 @@ export default (editor, opts = {}) => {
       {id: 'ol', name: Drupal.t('Ordered')},
     ],
     listItemLabel: Drupal.t('List item'),
+    mapLabel: Drupal.t('Map'),
     sectionLabel: Drupal.t('Section'),
     sectionDefaultTagName: 'div',
     sectionLabelTagNameTrait: Drupal.t('Tag'),

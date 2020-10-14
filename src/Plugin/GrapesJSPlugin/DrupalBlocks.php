@@ -55,7 +55,7 @@ class DrupalBlocks extends GrapesJSPluginBase implements ContainerFactoryPluginI
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('grapesjs_editor.block_manager'),
+      $container->get('grapesjs_editor.block_manager')
     );
   }
 
