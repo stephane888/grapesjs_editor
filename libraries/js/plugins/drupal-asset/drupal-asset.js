@@ -13,15 +13,20 @@ export default (editor, opts = {}) => {
   /* Add data attributes to track Drupal files */
   editor.on('component:update:src', (component) => {
     if (component.is('image')) {
-      const asset = assetManager.get(component.attributes.src);
+      const componentAttrs = component.getAttributes();
+      const asset = assetManager.get(componentAttrs.src);
+      const assetData = asset && asset.attributes && asset.attributes.data;
 
-      if (!component.attributes['data-entity-uuid'] && asset && asset.attributes && asset.attributes.data) {
-        const attrs = Object.keys(asset.attributes.data).reduce((accumulator, key) => {
-          accumulator[`data-${key}`] = asset.attributes.data[key];
+      if (assetData) {
+        const attrs = Object.keys(assetData).reduce((accumulator, key) => {
+          if (!componentAttrs[`data-${key}`] || componentAttrs[`data-${key}`] !== assetData[key]) {
+            accumulator[`data-${key}`] = assetData[key];
+          }
+
           return accumulator;
         }, {});
 
-        component.addAttributes(attrs);
+        attrs.length > 0 && component.addAttributes(attrs);
       }
     }
   });
