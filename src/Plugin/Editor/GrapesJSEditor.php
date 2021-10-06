@@ -171,7 +171,7 @@ class GrapesJSEditor extends EditorBase implements ContainerFactoryPluginInterfa
             $plugin = $this->pluginManager->createInstance($plugin_id);
             $libraries = array_merge($libraries, $plugin->getLibraries($editor));
         }
-
+        // return [];
         return $libraries;
     }
 }

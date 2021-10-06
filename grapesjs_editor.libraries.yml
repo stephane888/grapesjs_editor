@@ -16,6 +16,7 @@ editor:
   css:
     base:
       libraries/css/editor.css: { }
+      libraries/css/drupal-grapesjs-editor.css: { }
   js:
     libraries/js/drupal-grapesjs-editor.min.js: { minified: true }
   dependencies:
@@ -25,7 +26,7 @@ editor:
     - core/drupal.debounce
     - core/drupal.displace
     - editor/drupal.editor
-    - grapesjs_editor/grapesjs
+#    - grapesjs_editor/grapesjs
 
 drupal-storage:
   version: VERSION

@@ -73,7 +73,7 @@ class LibraryResolver
         ])->toString();
         foreach ($this->assetResolver->getCssAssets($assets, FALSE) as $uri => $css_asset) {
             if ($css_asset['media'] === 'all') {
-                // $css[] = $front . $uri;
+                $css[] = $front . $uri;
             }
         }
 
