@@ -1,0 +1,14 @@
+{
+    "name": "stephane888/grapesjs_editor",
+    "license": "MIT",
+    "type": "drupal-module-custom",
+    "description": "GrapeJs test",
+    "authors": [
+        {
+            "name": "stephane888",
+            "email": "kksasteph888@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
