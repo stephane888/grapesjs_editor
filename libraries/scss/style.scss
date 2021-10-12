@@ -1,0 +1,38 @@
+// Put your variables before the GrapesJS style import
+// default $cv-prefix => gjs-cv-
+//$prefix: "drupal-gjs";
+// Palette variables
+//$primaryColor: #edede8;
+// $secondaryColor: rgb(50, 52, 58);
+//$tertiaryColor: #a09ea0;
+$quaternaryColor: #e9e53c;
+$leftWidth: 25%;
+$newLeftWidth: 250px;
+
+// ...
+@import "grapesjs/src/styles/scss/main.scss";
+@import "grapesjs-component-code-editor/dist/grapesjs-component-code-editor.min.css";
+@import "./override-code-editor.scss";
+
+.#{$cv-prefix}canvas,
+.#{$pn-prefix}commands {
+  width: calc(100% - #{$newLeftWidth});
+  min-width: calc(100% - #{$newLeftWidth});
+}
+
+.#{$pn-prefix}views,
+.#{$pn-prefix}views-container {
+  width: $newLeftWidth;
+  min-width: $newLeftWidth;
+  padding-top: 0;
+}
+.#{$pn-prefix}views-container {
+  max-height: calc(100vh - 40px);
+}
+.#{$pn-prefix}options {
+  right: $newLeftWidth;
+}
+
+.#{$pn-prefix}btn {
+  border: 1px solid #3c3a3a;
+}

@@ -1,3 +1,14 @@
+gjs-editor {
+  min-width: 900px;
+}
+.gjs-cv-canvas,
+.gjs-pn-commands {
+  width: calc(100% - 250px);
+}
+.gjs-pn-views-container {
+  width: 250px;
+}
+
 .gjs select {
   font-size: 13px;
   line-height: 1;
@@ -13,7 +24,7 @@
 }
 
 .gjs-alert-error {
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   font-weight: bold;
   color: #b71d1d;
   background-color: #d27878;
